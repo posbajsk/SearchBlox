@@ -39,7 +39,7 @@ go.onclick = async () => {
     if (!place) return reset('Place not found!');
 
     const { Url: avatar} = await request(`https://www.roblox.com/headshot-thumbnail/json?userId=${user.Id}&width=48&height=48`);
-    status.innerHTML = `Fetched ${username}\n ID: ${user.Id}`;
+    status.innerHTML = `Working...`;
     document.getElementById('icon').src = avatar;
 
     const total = await getTotal(placeID);
