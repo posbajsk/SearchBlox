@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+  <style>
+    body {
+      font-family: monospace;
+      font-size: 15px;
+      color: white;
+      background-color: #1a1a1a;
+    }
+    .center {
+      display: block;
+      border-radius: 50%;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .red {
+      color: red;
+    }
+  </style>
+  <body>
+    <img id='icon' src='images/128x128.png' class="center" height='50' width='50'/><br>
+    <label for='user'>Username</label>
+    <input type='text' id='user'><br><br>
+    <label for='pid'>Place ID</label>
+    <input type='text' id='pid'><br><br>
+    <label for='chunk' id = 'label'>Request Limit: 50</label>
+    <input type='range' step="10" min='10' max='100' value='50' id='chunk'><br><br>
+    <input type='submit' value='Go' id='go'>
+    <p id='status'></p>
+    <p class='red' id='warning'></p>
+    <script src='popup.js'></script>
+  </body>
+</html>
