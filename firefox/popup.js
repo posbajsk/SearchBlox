@@ -50,7 +50,7 @@ search.onclick = async () => {
         icon.src = avatar;
     
         const total = await getTotal(placeID);
-        if (total > 5000) warning.innerHTML = `${Math.round(5000 / total * 100)}% server coverage`;
+        if (total > 5000) warning.innerHTML = `${Math.round(5000 / total * 100)}% Server coverage`;
     
         const urls = Array.from({ length: Math.ceil(total / 10) }, (_, i) => `https://www.roblox.com/games/getgameinstancesjson?placeId=${placeID}&startIndex=${i * 10}`);
         const chunked = chunk(urls, chunkSize);
