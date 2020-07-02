@@ -42,7 +42,7 @@
       margin-left: auto;
       margin-right: auto;
     }
-    .slider::-webkit-slider-thumb {
+    .slider::-moz-range-thumb {
       -webkit-appearance: none;
       appearance: none;
       width: 15px;
@@ -61,6 +61,7 @@
       z-index: -1;
     }
     .go {
+      font-family: monospace;
       border: none;
       cursor: pointer;
       padding: 8px;
@@ -74,7 +75,8 @@
       opacity: 0.6;
       cursor: not-allowed;
     }
-    .red {
+    .warning {
+      max-width: 175px;
       color: red;
     }
   </style>
@@ -85,11 +87,11 @@
     <label for='chunk' id = 'label'>Request Limit: <b>40</b></label>
     <input type='range' class='slider' step='10' min='10' max='100' value='40' id='chunk'><br>
     <input type='button' value='Go' id='go' class='go'>
-    <p class='red' id='warning'></p>
+    <p class='warning' id='warning'></p>
     <div class = 'info'>
-      <div id='bar' class='bar'/></div>
+      <div id='bar' class='bar'></div>
       <p id='status' class='status'></p>
     </div>
-    <script src='popup.js'></script>
+    <script type='text/javascript' src='popup.js'></script>
   </body>
 </html>

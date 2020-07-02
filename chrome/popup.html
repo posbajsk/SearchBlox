@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+  <style>
+    body {
+      font-family: monospace;
+      font-size: 14px;
+      color: white;
+      background-color: #1a1a1a;
+    }
+    .icon {
+      display: block;
+      border-radius: 50%;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .status {
+      font-weight: bold;
+      margin: 0px;
+      bottom: 0px;
+      text-align: center;
+    }
+    .input {
+      background-color: #363636;
+      font-family: monospace;
+      padding: 8px;
+      border: none;
+    }
+    .input::placeholder {
+      font-family: monospace;
+      color: white;
+    }
+    .input, select, textarea {
+      color: white;
+    }
+    .slider {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 15px;
+      background: #363636;
+      outline: none;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 15px;
+      height: 15px;
+      background: #0077ff;
+      cursor: pointer;
+    }
+    .bar {
+      height: 30px;
+      width: 185px;
+      width: 0%;
+      background-color: #0077ff;
+      position: absolute;
+      bottom: 0px;
+      left: 0px;
+      z-index: -1;
+    }
+    .go {
+      font-family: monospace;
+      border: none;
+      cursor: pointer;
+      padding: 8px;
+      color: white;
+      background-color: #363636;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .go:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    .warning {
+      color: red;
+    }
+  </style>
+  <body>
+    <img id='icon' src='images/128x128.png' class='icon' height='50' width='50'><br>
+    <input type='text' autocomplete='off' id='user' placeholder='Username' class='input'><br><br>
+    <input type='text' autocomplete='off' id='pid' placeholder='Place ID' class='input'><br><br>
+    <label for='chunk' id = 'label'>Request Limit: <b>40</b></label>
+    <input type='range' class='slider' step='10' min='10' max='100' value='40' id='chunk'><br>
+    <input type='button' value='Go' id='go' class='go'>
+    <p class='warning' id='warning'></p>
+    <div class = 'info'>
+      <div id='bar' class='bar'></div>
+      <p id='status' class='status'></p>
+    </div>
+    <script type='text/javascript' src='popup.js'></script>
+  </body>
+</html>
