@@ -21,7 +21,7 @@ const reset = msg => {
     go.disabled = false;
     status.innerHTML = '';
     bar.style.width = '0%';
-    return warning.innerHTML = msg || 'Error! Please try again';
+    return warning.innerHTML = msg;
 };
 
 chunkSlider.oninput = () => chunkLabel.innerHTML = `Request Limit: <b>${chunkSlider.value}<b/>`;
@@ -82,6 +82,6 @@ go.onclick = async () => {
         const url = `https://www.roblox.com/home?placeID=${placeID}&gameID=${found.Guid}`;
         chrome.tabs.update({ url });
     } catch {
-        reset();
+        reset('Error! Please try again');
     };
 };
