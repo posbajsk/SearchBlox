@@ -1,6 +1,6 @@
 const search = document.getElementById('search');
 const chunkSlider = document.getElementById('chunk');
-const chunkLabel = document.getElementById('label');
+const chunkLabel = document.getElementById('limit');
 const warning = document.getElementById('warning');
 const status = document.getElementById('status');
 const placeInput = document.getElementById('pid');
