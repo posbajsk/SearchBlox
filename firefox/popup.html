@@ -3,16 +3,16 @@
   <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet'>
   <link rel="stylesheet" href="styles.css">
   <body>
-    <img id='icon' src='images/128x128.png' class='icon' height='50' width='50'><br>
+    <img id='icon' src='images/128x128.png' height='50' width='50'><br>
     <input type='text' autocomplete='off' id='user' placeholder='Username' class='input'><br><br>
     <input type='text' autocomplete='off' id='pid' placeholder='Place ID' class='input'><br><br>
-    <label class='limit' for='chunk' id='limit'>Request Limit: <b>40</b></label>
-    <input type='range' class='slider' step='10' min='10' max='100' value='40' id='chunk'><br>
-    <input type='button' value='Search' id='search' class='search'>
-    <p class='warning' id='warning'></p>
+    <label for='chunk' id='limit'>Request Limit: <b>40</b></label>
+    <input type='range' step='10' min='10' max='100' value='40' id='chunk'><br>
+    <input type='button' value='Search' id='search'>
+    <p id='warning'></p>
     <div class = 'info'>
-      <div id='bar' class='bar'></div>
-      <p id='status' class='status'></p>
+      <div id='bar'></div>
+      <p id='status'></p>
     </div>
     <script type='text/javascript' src='popup.js'></script>
   </body>
