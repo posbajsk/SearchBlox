@@ -27,7 +27,7 @@
     }
     .input::placeholder {
       font-family: monospace;
-      color: white;
+      color: #a1a1a1;
     }
     .input, select, textarea {
       color: white;
@@ -60,20 +60,20 @@
       left: 0px;
       z-index: -1;
     }
-    .go {
+    .search {
       font-family: monospace;
       border: none;
       cursor: pointer;
       padding: 8px;
       color: white;
-      background-color: #363636;
+      background-color: #0077ff;
       display: block;
       margin-left: auto;
       margin-right: auto;
     }
-    .go:disabled {
+    .search:disabled {
       opacity: 0.6;
-      cursor: not-allowed;
+      cursor: auto;
     }
     .warning {
       max-width: 175px;
@@ -86,7 +86,7 @@
     <input type='text' autocomplete='off' id='pid' placeholder='Place ID' class='input'><br><br>
     <label for='chunk' id = 'label'>Request Limit: <b>40</b></label>
     <input type='range' class='slider' step='10' min='10' max='100' value='40' id='chunk'><br>
-    <input type='button' value='Go' id='go' class='go'>
+    <input type='button' value='Search' id='search' class='search'>
     <p class='warning' id='warning'></p>
     <div class = 'info'>
       <div id='bar' class='bar'></div>
