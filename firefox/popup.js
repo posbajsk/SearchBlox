@@ -1,64 +1,125 @@
+const REQUEST_LIMIT = 50;
+const COLORS = {
+  BLUE: '#0077FF',
+  RED: '#FF3E3E',
+  GREEN: '#58BD7E',
+  BLACK: '#2C2D2D',
+  WHITE: '#F2F4F7',
+};
+const SEARCH = {
+  SUCCESS: 'images/search-success.png',
+  NEUTRAL: 'images/search.png',
+  WARNING: 'images/search-warning.png',
+  ERROR: 'images/search-error.png',
+};
+const PLACE = {
+  SUCCESS: 'images/place-success.png',
+  NEUTRAL: 'images/place.png',
+  ERROR: 'images/place-error.png',
+};
+const USER = {
+  SUCCESS: 'images/user-success.png',
+  NEUTRAL: 'images/user.png',
+  ERROR: 'images/user-error.png',
+};
+
 const search = document.getElementById('search');
-const chunkSlider = document.getElementById('chunk');
-const chunkLabel = document.getElementById('limit');
-const warning = document.getElementById('warning');
 const status = document.getElementById('status');
 const placeInput = document.getElementById('pid');
-const usernameInput = document.getElementById('user');
+const userInput = document.getElementById('user');
+const userIcon = document.getElementById('user-icon');
+const placeIcon = document.getElementById('place-icon');
 const bar = document.getElementById('bar');
-const icon = document.getElementById('icon');
+const media = document.getElementById('media');
 
 const request = url => fetch(url).then(r => r.json());
 
 const chunkArr = (arr, size) => arr.flatMap((_, i) => (i % size ? [] : [arr.slice(i, i + size)]));
 
 const getTotal = async id => {
-  const { TotalCollectionSize } = await request(`https://www.roblox.com/games/getgameinstancesjson?placeId=${id}&startIndex=0`);
+  const { TotalCollectionSize } = await request(`https://www.roblox.com/games/getgameinstancesjson?placeId=${id}&startIndex=99999`);
   return TotalCollectionSize;
 };
 
-const reset = msg => {
-  search.disabled = false;
-  status.innerHTML = '';
-  bar.style.width = '0%';
-  return warning.innerHTML = msg;
+const notify = (msg, color = true) => {
+  status.style.color = COLORS.BLACK;
+  if (color) search.src = SEARCH.NEUTRAL;
+  return status.innerHTML = msg;
 };
 
-chunkSlider.oninput = () => chunkLabel.innerHTML = `Request Limit: <b>${chunkSlider.value}<b/>`;
+const error = (msg, enable = true) => {
+  bar.style.width = '0%';
+  bar.style.backgroundColor = COLORS.RED;
+  status.style.color = COLORS.RED;
+  if (enable) search.disabled = false;
+  search.src = SEARCH.ERROR;
+  return status.innerHTML = msg;
+};
+
+const reset = () => {
+  bar.style.backgroundColor = COLORS.BLUE;
+  return search.src = SEARCH.NEUTRAL;
+};
+
+const valid = {
+  user: false,
+  place: false,
+};
+
+userInput.oninput = () => {
+  const test = /(^(?=^[^_]+_?[^_]+$)\w{3,20}$|^\d+$)/.test(userInput.value);
+  if (!userInput.value) userIcon.src = USER.NEUTRAL;
+  else userIcon.src = test ? USER.SUCCESS : USER.ERROR;
+  valid.user = test;
+  return search.disabled = !(valid.user && valid.place);
+};
+
+placeInput.oninput = () => {
+  const test = /^\d+$/.test(placeInput.value);
+  if (!placeInput.value) placeIcon.src = PLACE.NEUTRAL;
+  else placeIcon.src = test ? PLACE.SUCCESS : PLACE.ERROR;
+  valid.place = test;
+  return search.disabled = !(valid.user && valid.place);
+};
 
 search.onclick = async () => {
   try {
+    reset();
     search.disabled = true;
-    warning.innerHTML = '';
 
-    const placeID = placeInput.value;
-    const username = usernameInput.value;
-    const chunkSize = parseInt(chunkSlider.value);
+    const user = await request(`https://api.roblox.com/users/${/^\d+$/.test(userInput.value) ? userInput.value : `get-by-username?username=${userInput.value}`}`);
 
-    if (!placeID || !username) return reset('Place or Username not provided!');
+    if (user.errorMessage) return error('User not found!');
 
-    const user = await request(`https://api.roblox.com/users/get-by-username?username=${username}`);
+    const [place] = await request(`https://games.roblox.com/v1/games/multiget-place-details?placeIds=${placeInput.value}`);
 
-    if (user.errorMessage) return reset('User not found!');
-
-    const [place] = await request(`https://games.roblox.com/v1/games/multiget-place-details?placeIds=${placeID}`);
-
-    if (!place) return reset('Place not found!');
+    if (!place) return error('Place not found!');
+    const req = await request(`https://thumbnails.roblox.com/v1/games/multiget/thumbnails?universeIds=${place.universeId}&size=768x432&format=Png&isCircular=false`);
+    const thumbnail = req.data[0].thumbnails[0].imageUrl;
 
     const { Url: avatar } = await request(`https://www.roblox.com/headshot-thumbnail/json?userId=${user.Id}&width=48&height=48`);
-    status.innerHTML = 'Working...';
-    icon.src = avatar;
+    notify('Searching...');
+    media.style.backgroundImage = `linear-gradient(to top right, ${COLORS.WHITE}, transparent), linear-gradient(to bottom left, transparent, ${COLORS.WHITE}), url(${thumbnail})`;
+    media.style.opacity = 1;
 
-    const total = await getTotal(placeID);
-    if (total > 5000) warning.innerHTML = `${Math.round((5000 / total) * 100)}% Server coverage`;
-
-    const urls = Array.from({ length: Math.ceil(total / 10) }, (_, i) => `https://www.roblox.com/games/getgameinstancesjson?placeId=${placeID}&startIndex=${i * 10}`);
-    const chunked = chunkArr(urls, chunkSize);
+    const total = await getTotal(place.placeId);
+    if (total > 5000) {
+      search.src = SEARCH.WARNING;
+      search.dataTip = `${Math.round((5000 / total) * 100)}% Server coverage`;
+    }
+    const urls = Array.from({ length: Math.ceil(total / 10) }, (_, i) => `https://www.roblox.com/games/getgameinstancesjson?placeId=${place.placeId}&startIndex=${i * 10}`);
+    const chunked = chunkArr(urls, REQUEST_LIMIT);
     let checked = [];
     let found;
 
     for (const chunk of chunked) {
-      const data = await Promise.all(chunk.map(url => request(url)));
+      let data;
+      try {
+        data = await Promise.all(chunk.map(url => request(url)));
+      } catch {
+        console.log('Bad request! Skipping...');
+        continue;
+      }
       if (!data[0].Collection.length) break;
 
       found = data
@@ -68,20 +129,39 @@ search.onclick = async () => {
       if (found) break;
 
       checked = [...checked, ...data];
-      const percentage = Math.round((checked.reduce((ori, cur) => ori + cur.Collection.length, chunkSize) / total) * 100);
-      status.innerHTML = `${percentage}%`;
+      const percentage = Math.round((checked.reduce((ori, cur) => ori + cur.Collection.length, REQUEST_LIMIT) / (total >= 5000 ? 5000 : total)) * 100);
       bar.style.width = `${percentage}%`;
     }
 
-    if (!found) return reset('Didn\'t find the server (VIP?)');
+    if (!found) return error('Didn\'t find the server!');
 
-    icon.src = 'images/tick.png';
+    search.disabled = false;
+    search.src = SEARCH.SUCCESS;
     bar.style.width = '100%';
-    status.innerHTML = 'Joining...';
-    const url = `https://www.roblox.com/home?placeID=${placeID}&gameID=${found.Guid}`;
+    bar.style.backgroundColor = COLORS.GREEN;
+    notify('Joining...', false);
+    const url = `https://www.roblox.com/home?placeID=${place.placeId}&gameID=${found.Guid}`;
     return browser.tabs.update({ url });
   } catch (e) {
     console.log(e);
-    return reset('Error! Please try again');
+    return error('Error! Please try again');
   }
 };
+
+const enter = ({ keyCode }) => keyCode === 13 && search.click();
+userInput.addEventListener('keydown', enter);
+placeInput.addEventListener('keydown', enter);
+browser.tabs.query({ active: true }, ([tab]) => {
+  const match = tab.url.match(/www\.roblox\.com\/(users|games)\/(\d+)/);
+  if (!match) return;
+  const [, type, id] = match;
+  if (type === 'users') {
+    valid.user = true;
+    userIcon.src = USER.SUCCESS;
+    userInput.value = id;
+  } else if (type === 'games') {
+    valid.place = true;
+    placeIcon.src = PLACE.SUCCESS;
+    placeInput.value = id;
+  }
+});

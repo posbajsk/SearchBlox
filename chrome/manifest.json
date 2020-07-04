@@ -1,8 +1,13 @@
 {
   "name": "Roblox Server Searcher",
+  "version": "0.3",
   "description": "Search for a user's game on Roblox!",
-  "version": "0.2.4",
-  "browser_action": {
+  "permissions": ["declarativeContent", "tabs"],
+  "background": {
+    "scripts": ["background.js"],
+    "persistent": false
+  },
+  "page_action": {
     "default_popup": "popup.html",
     "default_icon": {
       "16": "images/16x16.png",

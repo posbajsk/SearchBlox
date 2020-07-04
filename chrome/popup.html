@@ -1,18 +1,25 @@
 <!DOCTYPE html>
 <html>
-  <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet'>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
   <body>
-    <img id='icon' src='images/128x128.png' height='50' width='50'><br>
-    <input type='text' autocomplete='off' id='user' placeholder='Username' class='input'><br><br>
-    <input type='text' autocomplete='off' id='pid' placeholder='Place ID' class='input'><br><br>
-    <label for='chunk' id='limit'>Request Limit: <b>40</b></label>
-    <input type='range' step='10' min='10' max='100' value='40' id='chunk'><br>
-    <input type='button' value='Search' id='search'>
-    <p id='warning'></p>
-    <div class = 'info'>
-      <div id='bar'></div>
+    <div id='main'>
+      <div id='media'></div>
+      <div class='input-container'>
+        <img class='icon' id='user-icon' src='images/user.png'>
+        <input type='text' autofocus autocomplete='off' id='user' placeholder='Username' class='input'>
+      </div>
+      <div class='input-container'>
+        <img class='icon' id='place-icon' src='images/place.png'>
+        <input type='text' autocomplete='off' id='pid' placeholder='Place ID' class='input'>
+      </div>
+    </div>
+    <div id='sub'>
+      <input disabled type='image' src='/images/search.png' id='search'>
       <p id='status'></p>
+      <div id='progress'>
+        <div id='bar'></div>
+      </div>
     </div>
     <script type='text/javascript' src='popup.js'></script>
   </body>

@@ -18,6 +18,7 @@ module.exports = {
     'no-await-in-loop': 0,
     'no-return-assign': 0,
     'no-console': 0,
+    'no-continue': 0,
     radix: 0,
   },
 };
