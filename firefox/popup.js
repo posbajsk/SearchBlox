@@ -103,10 +103,8 @@ search.onclick = async () => {
     media.style.opacity = 1;
 
     const total = await getTotal(place.placeId);
-    if (total > 5000) {
-      search.src = SEARCH.WARNING;
-      search.dataTip = `${Math.round((5000 / total) * 100)}% Server coverage`;
-    }
+    if (total > 5000) search.src = SEARCH.WARNING;
+
     const urls = Array.from({ length: Math.ceil(total / 10) }, (_, i) => `https://www.roblox.com/games/getgameinstancesjson?placeId=${place.placeId}&startIndex=${i * 10}`);
     const chunked = chunkArr(urls, REQUEST_LIMIT);
     let checked = [];
