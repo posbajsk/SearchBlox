@@ -131,7 +131,7 @@ search.onclick = async () => {
       bar.style.width = `${percentage}%`;
     }
 
-    if (!found) return error('Didn\'t find the server!');
+    if (!found) return error('Server not found!');
 
     search.disabled = false;
     search.src = SEARCH.SUCCESS;
