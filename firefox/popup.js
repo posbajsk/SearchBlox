@@ -1,4 +1,4 @@
-const REQUEST_LIMIT = 50;
+const REQUEST_LIMIT = 40;
 const COLORS = {
   BLUE: '#0077FF',
   RED: '#FF3E3E',
