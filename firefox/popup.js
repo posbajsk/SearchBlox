@@ -32,6 +32,11 @@ const placeIcon = document.getElementById('place-icon');
 const bar = document.getElementById('bar');
 const media = document.getElementById('media');
 
+const valid = {
+  user: false,
+  place: false,
+};
+
 const request = async (url, retry) => {
   try {
     return await fetch(url).then(r => r.json());
@@ -56,11 +61,6 @@ const error = (msg, disable) => {
   search.disabled = disable;
   search.src = SEARCH.ERROR;
   return status.innerHTML = msg;
-};
-
-const valid = {
-  user: false,
-  place: false,
 };
 
 userInput.oninput = () => {
