@@ -32,7 +32,14 @@ const placeIcon = document.getElementById('place-icon');
 const bar = document.getElementById('bar');
 const media = document.getElementById('media');
 
-const request = url => fetch(url).then(r => r.json());
+const request = async (url, retry) => {
+  try {
+    return await fetch(url).then(r => r.json());
+  } catch (e) {
+    if (!retry || retry === 1) throw e;
+    return request(url, retry - 1);
+  }
+};
 
 const chunkArr = (arr, size) => arr.flatMap((_, i) => (i % size ? [] : [arr.slice(i, i + size)]));
 
@@ -106,13 +113,7 @@ search.onclick = async () => {
     let found;
 
     for (const chunk of chunked) {
-      let data;
-      try {
-        data = await Promise.all(chunk.map(url => request(url)));
-      } catch {
-        console.log('Bad request! Skipping...');
-        continue;
-      }
+      const data = await Promise.all(chunk.map(url => request(url, 3)));
       if (!data[0].Collection.length) break;
 
       found = data
