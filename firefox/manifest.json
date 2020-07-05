@@ -1,6 +1,6 @@
 {
   "name": "Roblox Server Searcher",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "Search for a user's game on Roblox!",
   "permissions": [
     "tabs",
