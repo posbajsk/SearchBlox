@@ -49,11 +49,11 @@ const notify = (msg, color = true) => {
   return status.innerHTML = msg;
 };
 
-const error = (msg, enable = true) => {
+const error = (msg, enable) => {
   bar.style.width = '0%';
   bar.style.backgroundColor = COLORS.RED;
   status.style.color = COLORS.RED;
-  if (enable) search.disabled = false;
+  search.disabled = enable;
   search.src = SEARCH.ERROR;
   return status.innerHTML = msg;
 };
@@ -86,12 +86,17 @@ search.onclick = async () => {
     search.disabled = true;
 
     const user = await request(`https://api.roblox.com/users/${/^\d+$/.test(userInput.value) ? userInput.value : `get-by-username?username=${userInput.value}`}`);
-
-    if (user.errorMessage) return error('User not found!');
+    if (user.errorMessage) {
+      userIcon.src = USER.ERROR;
+      return error('User not found!', true);
+    }
 
     const [place] = await request(`https://games.roblox.com/v1/games/multiget-place-details?placeIds=${placeInput.value}`);
+    if (!place) {
+      placeIcon.src = PLACE.ERROR;
+      return error('Place not found!', true);
+    }
 
-    if (!place) return error('Place not found!');
     const req = await request(`https://thumbnails.roblox.com/v1/games/multiget/thumbnails?universeIds=${place.universeId}&size=768x432&format=Png&isCircular=false`);
     const thumbnail = req.data[0].thumbnails[0].imageUrl;
 
