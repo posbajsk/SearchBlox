@@ -49,11 +49,11 @@ const notify = (msg, color = true) => {
   return status.innerHTML = msg;
 };
 
-const error = (msg, enable) => {
+const error = (msg, disable) => {
   bar.style.width = '0%';
   bar.style.backgroundColor = COLORS.RED;
   status.style.color = COLORS.RED;
-  search.disabled = enable;
+  search.disabled = disable;
   search.src = SEARCH.ERROR;
   return status.innerHTML = msg;
 };
