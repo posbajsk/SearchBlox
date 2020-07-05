@@ -32,6 +32,11 @@ const placeIcon = document.getElementById('place-icon');
 const bar = document.getElementById('bar');
 const media = document.getElementById('media');
 
+const valid = {
+  user: false,
+  place: false,
+};
+
 const request = async (url, retry) => {
   try {
     return await fetch(url).then(r => r.json());
@@ -58,11 +63,6 @@ const error = (msg, disable) => {
   return status.innerHTML = msg;
 };
 
-const valid = {
-  user: false,
-  place: false,
-};
-
 userInput.oninput = () => {
   const test = /(^(?=^[^_]+_?[^_]+$)\w{3,20}$|^\d+$)/.test(userInput.value);
   if (!userInput.value) userIcon.src = USER.NEUTRAL;
@@ -81,6 +81,7 @@ placeInput.oninput = () => {
 
 search.onclick = async () => {
   try {
+    media.style.opacity = 0;
     bar.style.backgroundColor = COLORS.BLUE;
     search.src = SEARCH.NEUTRAL;
     search.disabled = true;

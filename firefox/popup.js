@@ -81,6 +81,7 @@ placeInput.oninput = () => {
 
 search.onclick = async () => {
   try {
+    media.style.opacity = 0;
     bar.style.backgroundColor = COLORS.BLUE;
     search.src = SEARCH.NEUTRAL;
     search.disabled = true;
@@ -136,7 +137,7 @@ search.onclick = async () => {
     bar.style.backgroundColor = COLORS.GREEN;
     notify('Joining...', false);
     const url = `https://www.roblox.com/home?placeID=${place.placeId}&gameID=${found.Guid}`;
-    return chrome.tabs.update({ url });
+    return browser.tabs.update({ url });
   } catch (e) {
     console.log(e);
     return error('Error! Please try again');
@@ -146,7 +147,7 @@ search.onclick = async () => {
 const enter = ({ keyCode }) => keyCode === 13 && search.click();
 userInput.addEventListener('keydown', enter);
 placeInput.addEventListener('keydown', enter);
-chrome.tabs.query({ active: true }, ([tab]) => {
+browser.tabs.query({ active: true }, ([tab]) => {
   const match = tab.url.match(/www\.roblox\.com\/(users|games)\/(\d+)/);
   if (!match) return;
   const [, type, id] = match;
