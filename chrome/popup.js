@@ -58,11 +58,6 @@ const error = (msg, enable = true) => {
   return status.innerHTML = msg;
 };
 
-const reset = () => {
-  bar.style.backgroundColor = COLORS.BLUE;
-  return search.src = SEARCH.NEUTRAL;
-};
-
 const valid = {
   user: false,
   place: false,
@@ -86,7 +81,8 @@ placeInput.oninput = () => {
 
 search.onclick = async () => {
   try {
-    reset();
+    bar.style.backgroundColor = COLORS.BLUE;
+    search.src = SEARCH.NEUTRAL;
     search.disabled = true;
 
     const user = await request(`https://api.roblox.com/users/${/^\d+$/.test(userInput.value) ? userInput.value : `get-by-username?username=${userInput.value}`}`);
