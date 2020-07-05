@@ -36,11 +36,6 @@ const request = url => fetch(url).then(r => r.json());
 
 const chunkArr = (arr, size) => arr.flatMap((_, i) => (i % size ? [] : [arr.slice(i, i + size)]));
 
-const getTotal = async id => {
-  const { TotalCollectionSize } = await request(`https://www.roblox.com/games/getgameinstancesjson?placeId=${id}&startIndex=99999`);
-  return TotalCollectionSize;
-};
-
 const notify = (msg, color = true) => {
   status.style.color = COLORS.BLACK;
   if (color) search.src = SEARCH.NEUTRAL;
@@ -102,7 +97,7 @@ search.onclick = async () => {
     media.style.backgroundImage = `linear-gradient(to top right, ${COLORS.WHITE}, transparent), linear-gradient(to bottom left, transparent, ${COLORS.WHITE}), url(${thumbnail})`;
     media.style.opacity = 1;
 
-    const total = await getTotal(place.placeId);
+    const { TotalCollectionSize: total } = await request(`https://www.roblox.com/games/getgameinstancesjson?placeId=${place.placeId}&startIndex=99999`);
     if (total > 5000) search.src = SEARCH.WARNING;
 
     const urls = Array.from({ length: Math.ceil(total / 10) }, (_, i) => `https://www.roblox.com/games/getgameinstancesjson?placeId=${place.placeId}&startIndex=${i * 10}`);
