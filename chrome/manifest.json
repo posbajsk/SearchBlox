@@ -1,8 +1,8 @@
 {
   "name": "Roblox Server Searcher",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "description": "Search for a user's game on Roblox!",
-  "permissions": ["declarativeContent", "tabs"],
+  "permissions": ["declarativeContent", "activeTab"],
   "background": {
     "scripts": ["background.js"],
     "persistent": false
