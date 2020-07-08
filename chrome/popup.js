@@ -46,8 +46,6 @@ const request = async (url, retry) => {
   }
 };
 
-const chunkArr = (arr, size) => arr.flatMap((_, i) => (i % size ? [] : [arr.slice(i, i + size)]));
-
 const notify = (msg, color = true) => {
   status.style.color = COLORS.BLACK;
   if (color) search.src = SEARCH.NEUTRAL;
@@ -82,6 +80,7 @@ placeInput.oninput = () => {
 search.onclick = async () => {
   try {
     media.style.opacity = 0;
+    bar.style.width = '0%';
     bar.style.backgroundColor = COLORS.BLUE;
     search.src = SEARCH.NEUTRAL;
     search.disabled = true;
@@ -110,12 +109,11 @@ search.onclick = async () => {
     if (total > 5000) search.src = SEARCH.WARNING;
 
     const urls = Array.from({ length: Math.ceil(total / 10) }, (_, i) => `https://www.roblox.com/games/getgameinstancesjson?placeId=${place.placeId}&startIndex=${i * 10}`);
-    const chunked = chunkArr(urls, REQUEST_LIMIT);
     let checked = [];
     let found;
 
-    for (const chunk of chunked) {
-      const data = await Promise.all(chunk.map(url => request(url, 3)));
+    while (urls.length) {
+      const data = await Promise.all(urls.splice(0, REQUEST_LIMIT).map(url => request(url, 3)));
       if (!data[0].Collection.length) break;
 
       found = data
@@ -125,7 +123,7 @@ search.onclick = async () => {
       if (found) break;
 
       checked = [...checked, ...data];
-      const percentage = Math.round((checked.reduce((ori, cur) => ori + cur.Collection.length, REQUEST_LIMIT) / (total >= 5000 ? 5000 : total)) * 100);
+      const percentage = Math.round((checked.reduce((o, c) => o + c.Collection.length, REQUEST_LIMIT) / (total >= 5000 ? 5000 : total)) * 100);
       bar.style.width = `${percentage}%`;
     }
 

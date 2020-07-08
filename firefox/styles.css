@@ -41,9 +41,9 @@ html, body {
     height: 7px;
     width: 0%;
     background-color: #0077FF;
-    transition: width 0.5s;
-    -moz-transition: width 0.5s;
-    -webkit-transition: width 0.5s;
+    transition: width 0.5s, background-color 0.25s;
+    -moz-transition: width 0.5s, background-color 0.25s;
+    -webkit-transition: width 0.5s, background-color 0.25s;
 }
 
 #status {
