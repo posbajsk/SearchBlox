@@ -1,8 +1,9 @@
 const REQUEST_LIMIT = 40;
 const COLORS = {
-  BLUE: '#0077FF',
-  RED: '#FF3E3E',
   GREEN: '#58BD7E',
+  BLUE: '#0077FF',
+  YELLOW: '#FFD074',
+  RED: '#FF3E3E',
   BLACK: '#2C2D2D',
   WHITE: '#F2F4F7',
 };
@@ -37,6 +38,21 @@ const valid = {
   place: false,
 };
 
+chrome.tabs.query({ active: true }, ([tab]) => {
+  const match = tab.url.match(/www\.roblox\.com\/(users|games)\/(\d+)/);
+  if (!match) return;
+  const [, type, id] = match;
+  if (type === 'users') {
+    valid.user = true;
+    userIcon.src = USER.SUCCESS;
+    userInput.value = id;
+  } else if (type === 'games') {
+    valid.place = true;
+    placeIcon.src = PLACE.SUCCESS;
+    placeInput.value = id;
+  }
+});
+
 const request = async (url, retry) => {
   try {
     return await fetch(url).then(r => r.json());
@@ -46,9 +62,8 @@ const request = async (url, retry) => {
   }
 };
 
-const notify = (msg, color = true) => {
+const notify = msg => {
   status.style.color = COLORS.BLACK;
-  if (color) search.src = SEARCH.NEUTRAL;
   return status.innerHTML = msg;
 };
 
@@ -101,12 +116,18 @@ search.onclick = async () => {
     const thumbnail = req.data[0].thumbnails[0].imageUrl;
 
     const { Url: avatar } = await request(`https://www.roblox.com/headshot-thumbnail/json?userId=${user.Id}&width=48&height=48`);
-    notify('Searching...');
+
     media.style.backgroundImage = `linear-gradient(to top right, ${COLORS.WHITE}, transparent), linear-gradient(to bottom left, transparent, ${COLORS.WHITE}), url(${thumbnail})`;
     media.style.opacity = 1;
 
     const { TotalCollectionSize: total } = await request(`https://www.roblox.com/games/getgameinstancesjson?placeId=${place.placeId}&startIndex=99999`);
-    if (total > 5000) search.src = SEARCH.WARNING;
+    if (total > 5000) {
+      console.log(`WARNING: ${Math.round((5000 / total) * 100)}% Server coverage`);
+      bar.style.backgroundColor = COLORS.YELLOW;
+      search.src = SEARCH.WARNING;
+    }
+
+    notify('Searching...');
 
     const urls = Array.from({ length: Math.ceil(total / 10) }, (_, i) => `https://www.roblox.com/games/getgameinstancesjson?placeId=${place.placeId}&startIndex=${i * 10}`);
     let checked = [];
@@ -116,15 +137,15 @@ search.onclick = async () => {
       const data = await Promise.all(urls.splice(0, REQUEST_LIMIT).map(url => request(url, 3)));
       if (!data[0].Collection.length) break;
 
+      checked = [...checked, ...data];
+      const percentage = Math.round((checked.reduce((o, c) => o + c.Collection.length, 0) / total) * 100);
+      bar.style.width = `${percentage}%`;
+
       found = data
         .flatMap(group => group.Collection)
         .find(server => server.CurrentPlayers
           .find(player => player.Id === user.Id || player.Thumbnail.Url === avatar));
       if (found) break;
-
-      checked = [...checked, ...data];
-      const percentage = Math.round((checked.reduce((o, c) => o + c.Collection.length, REQUEST_LIMIT) / (total >= 5000 ? 5000 : total)) * 100);
-      bar.style.width = `${percentage}%`;
     }
 
     if (!found) return error('Server not found!');
@@ -133,7 +154,9 @@ search.onclick = async () => {
     search.src = SEARCH.SUCCESS;
     bar.style.width = '100%';
     bar.style.backgroundColor = COLORS.GREEN;
-    notify('Joining...', false);
+
+    notify('Joining...');
+
     const url = `https://www.roblox.com/home?placeID=${place.placeId}&gameID=${found.Guid}`;
     return chrome.tabs.update({ url });
   } catch (e) {
@@ -145,17 +168,3 @@ search.onclick = async () => {
 const enter = ({ keyCode }) => keyCode === 13 && search.click();
 userInput.addEventListener('keydown', enter);
 placeInput.addEventListener('keydown', enter);
-chrome.tabs.query({ active: true }, ([tab]) => {
-  const match = tab.url.match(/www\.roblox\.com\/(users|games)\/(\d+)/);
-  if (!match) return;
-  const [, type, id] = match;
-  if (type === 'users') {
-    valid.user = true;
-    userIcon.src = USER.SUCCESS;
-    userInput.value = id;
-  } else if (type === 'games') {
-    valid.place = true;
-    placeIcon.src = PLACE.SUCCESS;
-    placeInput.value = id;
-  }
-});
