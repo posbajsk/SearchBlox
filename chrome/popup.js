@@ -1,4 +1,5 @@
 const REQUEST_LIMIT = 40;
+const RETRY_LIMIT = 3;
 const COLORS = {
   GREEN: '#58BD7E',
   BLUE: '#0077FF',
@@ -55,7 +56,7 @@ chrome.tabs.query({ active: true }, ([tab]) => {
 
 const request = async (url, retry) => {
   try {
-    return await fetch(url).then(r => r.json());
+    return await fetch(`https://${url}`).then(r => r.json());
   } catch (e) {
     if (!retry || retry === 1) throw e;
     return request(url, retry - 1);
@@ -100,27 +101,27 @@ search.onclick = async () => {
     search.src = SEARCH.NEUTRAL;
     search.disabled = true;
 
-    const user = await request(`https://api.roblox.com/users/${/^\d+$/.test(userInput.value) ? userInput.value : `get-by-username?username=${userInput.value}`}`);
+    const user = await request(`api.roblox.com/users/${/^\d+$/.test(userInput.value) ? userInput.value : `get-by-username?username=${userInput.value}`}`);
     if (user.errorMessage) {
       userIcon.src = USER.ERROR;
       return error('User not found!', true);
     }
 
-    const [place] = await request(`https://games.roblox.com/v1/games/multiget-place-details?placeIds=${placeInput.value}`);
+    const [place] = await request(`games.roblox.com/v1/games/multiget-place-details?placeIds=${placeInput.value}`);
     if (!place) {
       placeIcon.src = PLACE.ERROR;
       return error('Place not found!', true);
     }
 
-    const req = await request(`https://thumbnails.roblox.com/v1/games/multiget/thumbnails?universeIds=${place.universeId}&size=768x432&format=Png&isCircular=false`);
+    const req = await request(`thumbnails.roblox.com/v1/games/multiget/thumbnails?universeIds=${place.universeId}&size=768x432&format=Png&isCircular=false`);
     const thumbnail = req.data[0].thumbnails[0].imageUrl;
 
-    const { Url: avatar } = await request(`https://www.roblox.com/headshot-thumbnail/json?userId=${user.Id}&width=48&height=48`);
+    const { Url: avatar } = await request(`www.roblox.com/headshot-thumbnail/json?userId=${user.Id}&width=48&height=48`);
 
     media.style.backgroundImage = `linear-gradient(to top right, ${COLORS.WHITE}, transparent), linear-gradient(to bottom left, transparent, ${COLORS.WHITE}), url(${thumbnail})`;
     media.style.opacity = 1;
 
-    const { TotalCollectionSize: total } = await request(`https://www.roblox.com/games/getgameinstancesjson?placeId=${place.placeId}&startIndex=99999`);
+    const { TotalCollectionSize: total } = await request(`www.roblox.com/games/getgameinstancesjson?placeId=${place.placeId}&startIndex=99999`);
     if (total > 5000) {
       console.log(`WARNING: ${Math.round((5000 / total) * 100)}% Server coverage`);
       bar.style.backgroundColor = COLORS.YELLOW;
@@ -129,12 +130,12 @@ search.onclick = async () => {
 
     notify('Searching...');
 
-    const urls = Array.from({ length: Math.ceil(total / 10) }, (_, i) => `https://www.roblox.com/games/getgameinstancesjson?placeId=${place.placeId}&startIndex=${i * 10}`);
+    const urls = Array.from({ length: Math.ceil(total / 10) }, (_, i) => `www.roblox.com/games/getgameinstancesjson?placeId=${place.placeId}&startIndex=${i * 10}`);
     let checked = [];
     let found;
 
     while (urls.length) {
-      const data = await Promise.all(urls.splice(0, REQUEST_LIMIT).map(url => request(url, 3)));
+      const data = await Promise.all(urls.splice(0, REQUEST_LIMIT).map(url => request(url, RETRY_LIMIT)));
       if (!data[0].Collection.length) break;
 
       checked = [...checked, ...data];
@@ -157,7 +158,7 @@ search.onclick = async () => {
 
     notify('Joining...');
 
-    const url = `https://www.roblox.com/home?placeID=${place.placeId}&gameID=${found.Guid}`;
+    const url = `www.roblox.com/home?placeID=${place.placeId}&gameID=${found.Guid}`;
     return chrome.tabs.update({ url });
   } catch (e) {
     console.log(e);
