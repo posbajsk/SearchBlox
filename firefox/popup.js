@@ -158,7 +158,7 @@ search.onclick = async () => {
 
     notify('Joining...');
 
-    const url = `www.roblox.com/home?placeID=${place.placeId}&gameID=${found.Guid}`;
+    const url = `https://www.roblox.com/home?placeID=${place.placeId}&gameID=${found.Guid}`;
     return browser.tabs.update({ url });
   } catch (e) {
     console.log(e);
