@@ -54,9 +54,10 @@ chrome.tabs.query({ active: true }, ([tab]) => {
   }
 });
 
-const request = async (url, retry) => {
+const request = async (url, options = {}) => {
+  const { retry } = options;
   try {
-    return await fetch(`https://${url}`).then(r => r.json());
+    return await fetch(`https://${url}`, options).then(r => r.json());
   } catch (e) {
     if (!retry || retry === 1) throw e;
     return request(url, retry - 1);
@@ -93,6 +94,17 @@ placeInput.oninput = () => {
   return search.disabled = !(valid.user && valid.place);
 };
 
+const join = (placeID, gameID) => {
+  search.disabled = false;
+  search.src = SEARCH.SUCCESS;
+  bar.style.width = '100%';
+  bar.style.backgroundColor = COLORS.GREEN;
+
+  notify('Joining...');
+  const url = `https://www.roblox.com/home?placeID=${placeID}&gameID=${gameID}`;
+  return chrome.tabs.update({ url });
+};
+
 search.onclick = async () => {
   try {
     media.style.opacity = 0;
@@ -106,6 +118,21 @@ search.onclick = async () => {
       userIcon.src = USER.ERROR;
       return error('User not found!', true);
     }
+
+    const { userPresences: [presence] } = await request('presence.roblox.com/v1/presence/users', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ userIds: [user.Id] }),
+    });
+
+    const { userPresenceType, gameId, placeId } = presence;
+
+    if (!userPresenceType) return error('User is offline!');
+    if (userPresenceType !== 2) return error('User is not playing a game!');
+
+    if (placeId && gameId) return join(placeId, gameId);
 
     const [place] = await request(`games.roblox.com/v1/games/multiget-place-details?placeIds=${placeInput.value}`);
     if (!place) {
@@ -135,7 +162,7 @@ search.onclick = async () => {
     let found;
 
     while (urls.length) {
-      const data = await Promise.all(urls.splice(0, REQUEST_LIMIT).map(url => request(url, RETRY_LIMIT)));
+      const data = await Promise.all(urls.splice(0, REQUEST_LIMIT).map(url => request(url, { retry: RETRY_LIMIT })));
       if (!data[0].Collection.length) break;
 
       checked = [...checked, ...data];
@@ -151,15 +178,7 @@ search.onclick = async () => {
 
     if (!found) return error('Server not found!');
 
-    search.disabled = false;
-    search.src = SEARCH.SUCCESS;
-    bar.style.width = '100%';
-    bar.style.backgroundColor = COLORS.GREEN;
-
-    notify('Joining...');
-
-    const url = `https://www.roblox.com/home?placeID=${place.placeId}&gameID=${found.Guid}`;
-    return chrome.tabs.update({ url });
+    return join(found.PlaceId, found.Guid);
   } catch (e) {
     console.log(e);
     return error('Error! Please try again');
