@@ -1,17 +1,17 @@
 {
-  "name": "serversearcher",
+  "name": "searchblox",
   "version": "0.4.0",
   "description": "Search for a user's game on Roblox!\r Join regardless of privacy setting.",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/matthewfripp/serversearcher.git"
+    "url": "git+https://github.com/matthewfripp/searchblox.git"
   },
   "author": "Matthew Fripp",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/matthewfripp/serversearcher/issues"
+    "url": "https://github.com/matthewfripp/searchblox/issues"
   },
-  "homepage": "https://github.com/matthewfripp/serversearcher#readme",
+  "homepage": "https://github.com/matthewfripp/searchblox#readme",
   "devDependencies": {
     "eslint": "^7.5.0",
     "eslint-config-airbnb-base": "^14.2.0",
