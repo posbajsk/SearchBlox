@@ -59,7 +59,7 @@ const request = async (url, options = {}) => {
     return await fetch(`https://${url}`, options).then(r => r.json());
   } catch (e) {
     if (!retry || retry === 1) throw e;
-    return request(url, options);
+    return request(url, { ...options, retry: retry - 1 });
   }
 };
 
