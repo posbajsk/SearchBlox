@@ -1,6 +1,6 @@
 {
   "name": "SearchBlox",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Search for a user's game on Roblox!",
   "permissions": [
     "activeTab",
