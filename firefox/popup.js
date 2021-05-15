@@ -39,7 +39,7 @@ const valid = {
 };
 
 browser.tabs.query({ active: true }, ([tab]) => {
-  const match = tab.url.match(/www\.roblox\.com\/(users|games)\/(\d+)/);
+  const match = tab.url.match(/\.roblox\.com\/(users|games)\/(\d+)/);
   if (!match) return;
   const [, type, id] = match;
   if (type === 'users') {
