@@ -1,5 +1,6 @@
 const REQUEST_LIMIT = 40;
 const RETRY_LIMIT = 3;
+const RETRY_AFTER = 10000;
 const COLORS = {
   GREEN: '#58BD7E',
   BLUE: '#0077FF',
@@ -38,6 +39,8 @@ const valid = {
   place: false,
 };
 
+const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+
 browser.tabs.query({ active: true }, ([tab]) => {
   const match = tab.url.match(/\.roblox\.com\/(users|games)\/(\d+)/);
   if (!match) return;
@@ -56,9 +59,12 @@ browser.tabs.query({ active: true }, ([tab]) => {
 const request = async (url, options = {}) => {
   const { retry } = options;
   try {
-    return await fetch(`https://${url}`, options).then(r => r.json());
+    const res = await fetch(`https://${url}`, options);
+    if (res.ok) return res.json();
+    throw res.status;
   } catch (e) {
     if (!retry || retry === 1) throw e;
+    if (e === 429) await sleep(RETRY_AFTER);
     return request(url, { ...options, retry: retry - 1 });
   }
 };
@@ -108,10 +114,10 @@ const getServer = async (user, avatar, placeID, total, offset) => {
   const percentage = Math.round((offset / total) * 100);
   bar.style.width = `${percentage}%`;
 
-  if (total <= offset) return { error: true, api: false, percentage };
+  if (total <= offset) return false;
   const urls = Array.from({ length: REQUEST_LIMIT }, (_, i) => `www.roblox.com/games/getgameinstancesjson?placeId=${placeID}&startIndex=${i * 10 + offset}`);
   const data = await Promise.all(urls.map(url => request(url, { retry: RETRY_LIMIT })));
-  if (!data[0].Collection.length) return { error: true, api: true, percentage };
+  if (!data[0].Collection.length) return getServer(user, avatar, placeID, data[0].TotalCollectionSize, 0);
 
   const found = data
     .flatMap(group => group.Collection)
@@ -169,7 +175,7 @@ const main = async () => {
 
   const found = await getServer(user, avatar, place.placeId, total, 0);
 
-  if (found.error) return error(found.api ? `API error! ${found.percentage}% server coverage` : 'Server not found!');
+  if (!found) return error('Server not found!');
 
   return join(found.PlaceId, found.Guid);
 };
