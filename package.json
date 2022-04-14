@@ -1,6 +1,6 @@
 {
   "name": "searchblox",
-  "version": "0.4.1",
+  "version": "0.5",
   "description": "Search for a user's game on Roblox!\r Join regardless of privacy setting.",
   "repository": {
     "type": "git",
@@ -13,8 +13,8 @@
   },
   "homepage": "https://github.com/matthewfripp/searchblox#readme",
   "devDependencies": {
-    "eslint": "^7.5.0",
-    "eslint-config-airbnb-base": "^14.2.0",
+    "eslint": "^7.32.0",
+    "eslint-config-airbnb-base": "^14.2.1",
     "eslint-plugin-import": "^2.22.0"
   }
 }
