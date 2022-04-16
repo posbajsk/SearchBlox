@@ -1,0 +1,10 @@
+#sbx-panel {
+    all: initial;
+    background-color: white;
+    border: 1px solid black;
+    padding: 5px;
+}
+
+#sbx-panel * {
+    all: unset;
+}
