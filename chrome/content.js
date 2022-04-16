@@ -6,15 +6,16 @@ async function join(place, id) {
     return chrome.runtime.sendMessage({ message: { place, id } });
 }
 
-async function find(user, place, nextPageCursor) {
+async function find(user, place, cursor = '') {
     const { data: [{ imageUrl }] } = await get(`thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${user.Id}&size=150x150&format=Png&isCircular=false`);
-    const { data } = await get(`games.roblox.com/v1/games/${place}/servers/Public?limit=100&nextPageCursor=${nextPageCursor}`);
+    const { nextPageCursor, data } = await get(`games.roblox.com/v1/games/${place}/servers/Public?limit=100&cursor=${cursor}`);
 
-    nextPageCursor = data.nextPageCursor;
-
-    const servers = data.map(s => ({ id: s.id, tokens: s.playerTokens }));
+    cursor = nextPageCursor;
 
     let found = false;
+
+    const servers = data.map(s => ({ id: s.id, tokens: s.playerTokens }));
+    const maxPlayers = data[0].maxPlayers;
 
     for (const server of servers) {
         const { data } = await fetch('https://thumbnails.roblox.com/v1/batch', {
@@ -29,18 +30,16 @@ async function find(user, place, nextPageCursor) {
 
         const check = thumbnails.some(url => url === imageUrl);
 
-        if (check) {
+        if (!check) continue;
 
-            const first = document.querySelectorAll('.rbx-game-server-item')[0];
-            // Saves an API call
-            const maxPlayers = document.querySelectorAll('.text-info')[0].innerText.split(' ')[2];
+        found = true;
 
+        const first = document.querySelectorAll('.rbx-game-server-item')[0];
 
-            const item = document.createElement('li');
-            item.className = 'stack-row rbx-game-server-item';
-            item.style = 'border: solid #00b06f';
+        const item = document.createElement('li');
+        item.className = 'stack-row rbx-game-server-item highlighted';
 
-            item.innerHTML = `
+        item.innerHTML = `
             <div class="section-left rbx-game-server-details'">
             <div class="text-info rbx-game-status rbx-game-server-status'">${server.tokens.length} of ${maxPlayers} people max</div>
             <span>
@@ -51,16 +50,17 @@ async function find(user, place, nextPageCursor) {
             ${thumbnails.map(url => `<span class="avatar avatar-headshot-sm player-avatar"><span class="thumbnail-2d-container avatar-card-image"><img src="${url}"></span></span>`).join('')}
             </div>`;
 
-            first.parentNode.insertBefore(item, first);
+        first.parentNode.insertBefore(item, first);
 
-            const button = document.getElementById('join-' + server.id);
+        const button = document.getElementById('join-' + server.id);
 
-            button.addEventListener('click', () => join(place, server.id));
-        };
+        button.onclick = () => join(place, server.id);
+
+        return;
+
     }
 
-    if (!found && !nextPageCursor) return false;
-    else if (nextPageCursor) return find(user, place, nextPageCursor);
+    return cursor && find(user, place, cursor);
 }
 
 async function execute() {
@@ -69,7 +69,7 @@ async function execute() {
     div.innerHTML = await fetch(chrome.runtime.getURL('panel.html')).then(res => res.text());
 
     // add the newly created element and its content into the DOM
-    const runningGames = document.getElementById('rbx-running-games');
+    const runningGames = document.getElementById('rbx-game-server-item-container');
     runningGames.parentNode.insertBefore(div, runningGames);
 
     const search = document.getElementById('sbx-search');
@@ -79,12 +79,23 @@ async function execute() {
         // Prevents page from refreshing
         event.preventDefault();
 
+        if (!/(^(?=^[^_]+_?[^_]+$)\w{3,20}$|^\d+$)/.test(input.value)) return input.classList.add('invalid');
+
+        input.classList.remove('invalid');
+
+        search.disabled = true;
+        input.disabled = true;
+
+
         const user = await get(`api.roblox.com/users/${/^\d+$/.test(input.value) ? input.value : `get-by-username?username=${input.value}`}`);
-        if (!user) return;
+        if (user.errorMessage) return;
 
         const place = location.href.match(/games\/(\d+)\//)[1];
-        const found = await find(user, place);
-        return join(found);
+
+        await find(user, place);
+
+        search.disabled = false;
+        input.disabled = false;
     });
 }
 
