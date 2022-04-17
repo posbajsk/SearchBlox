@@ -1,4 +1,4 @@
-chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, { url }) => {
+chrome.tabs.onUpdated.addListener((tabId, changeInfo, { url }) => {
     if (changeInfo.status !== 'complete') return;
 
     if (!/https:\/\/.+roblox.com\/.+\/game-instances/g.test(url)) return;
