@@ -1,11 +1,16 @@
 #sbx-panel {
-    padding-bottom: 20px;
+    background-color: #c7cbce;
+    height: 50px;
+    width: 300px;
 }
 
 #sbx-search {
-    border-radius: 8px;
-    background-color: #00b06f;
-    color: white;
+    z-index: 1;
+    position: absolute;
+    transform: translate(225px);
+    border: none;
+    background-color: #0077ff;
+    transition: background-color 0.25s;
 }
 
 #sbx-search:disabled {
@@ -13,7 +18,46 @@
 }
 
 #sbx-input {
-    border-radius: 8px;
+    position: absolute;
+    width: 180px;
+    transform: translate(40px, 14px);
+    box-sizing: 0;
+    outline: none !important;
+    box-shadow: none !important;
+    border: none !important;
+    background-color: #c7cbce;
+}
+
+#sbx-status {
+    position: absolute;
+    transform: translate(320px, 14px);
+}
+
+#sbx-progress {
+    position: absolute;
+    transform: translate(0px, 43px);
+    width: 226px;
+}
+
+#sbx-bar {
+    position: relative;
+    height: 7px;
+    width: 0%;
+    background-color: #0077ff;
+    transition: width 0.5s, background-color 0.25s;
+    -moz-transition: width 0.5s, background-color 0.25s;
+    -webkit-transition: width 0.5s, background-color 0.25s;
+}
+
+#sbx-user {
+    position: absolute;
+    height: 20px;
+    width: 20px;
+    transform: translate(15px, 15px);
+}
+
+.dark {
+    background-color: #393b3d !important;
 }
 
 .invalid {
@@ -22,5 +66,26 @@
 
 .highlighted {
     border: solid #00b06f;
-    border-radius: 8px;
+}
+
+#sbx-input::-webkit-input-placeholder {
+    /* WebKit, Blink, Edge */
+    color: grey;
+    font-weight: 400 !important;
+}
+
+#sbx-input:-moz-placeholder {
+    /* Mozilla Firefox 4 to 18 */
+    color: gray;
+    font-weight: 400 !important;
+}
+
+.dark::-webkit-input-placeholder {
+    /* WebKit, Blink, Edge */
+    color: #757575 !important;
+}
+
+.dark:-moz-placeholder {
+    /* Mozilla Firefox 4 to 18 */
+    color: #757575 !important;
 }

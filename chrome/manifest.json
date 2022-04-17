@@ -11,18 +11,19 @@
     "128": "images/128x128.png"
   },
   "permissions": [
-    "tabs",
-    "scripting"
+    "scripting",
+    "tabs"
   ],
   "background": {
     "service_worker": "background.js"
   },
   "host_permissions": [
-    "https://*.roblox.com/*/game-instances"
+    "https://*.roblox.com/games/"
   ],
   "web_accessible_resources": [
     {
       "resources": [
+        "images/*.png",
         "styles.css",
         "content.js",
         "panel.html"
