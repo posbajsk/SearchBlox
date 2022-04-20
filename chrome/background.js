@@ -1,6 +1,5 @@
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, { url }) => {
     if (changeInfo.status !== 'complete') return;
-
     if (!/https:\/\/.+roblox.com\/.+\/game-instances/g.test(url)) return;
 
     chrome.scripting.insertCSS({ target: { tabId }, files: ['styles.css'] });

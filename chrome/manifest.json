@@ -11,8 +11,7 @@
     "128": "images/128x128.png"
   },
   "permissions": [
-    "scripting",
-    "tabs"
+    "scripting"
   ],
   "background": {
     "service_worker": "background.js"
