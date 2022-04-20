@@ -25,6 +25,7 @@
         "images/*.png",
         "styles.css",
         "content.js",
+        "load.js",
         "panel.html"
       ],
       "matches": [

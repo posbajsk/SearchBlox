@@ -10,7 +10,7 @@
     transform: translate(225px);
     border: none;
     background-color: #0077ff;
-    transition: background-color 0.25s;
+    transition: background-color 0.5s;
 }
 
 #sbx-search:disabled {
@@ -25,7 +25,7 @@
     outline: none !important;
     box-shadow: none !important;
     border: none !important;
-    background-color: #c7cbce;
+    background-color: inherit;
 }
 
 #sbx-status {
@@ -44,9 +44,9 @@
     height: 7px;
     width: 0%;
     background-color: #0077ff;
-    transition: width 0.5s, background-color 0.25s;
-    -moz-transition: width 0.5s, background-color 0.25s;
-    -webkit-transition: width 0.5s, background-color 0.25s;
+    transition: width 0.5s, background-color 0.5s;
+    -moz-transition: width 0.5s, background-color 0.5s;
+    -webkit-transition: width 0.5s, background-color 0.5s;
 }
 
 #sbx-user {
