@@ -143,6 +143,5 @@ search.addEventListener('click', async event => {
     const highlighted = document.querySelectorAll('[data-id]');
 
     highlighted.forEach(child => child.parentNode.parentNode.parentNode.remove());
-
-    await find(imageUrl, place);
+    return find(imageUrl, place);
 }); 
