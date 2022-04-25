@@ -1,5 +1,5 @@
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, { url }) => {
-  if (changeInfo.status !== 'complete' || !/https:\/\/.+roblox.com\/.+\/game-instances/g.test(url)) return;
+  if (changeInfo.status !== 'complete' || !/https:\/\/.+roblox.com\/games/g.test(url)) return;
 
   const target = { tabId };
 
