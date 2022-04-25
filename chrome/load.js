@@ -25,7 +25,7 @@ function waitForElm(selector) {
 
   const linebreak = document.createElement('br');
 
-  const runningGames = await waitForElm('#rbx-game-server-item-container');
+  const runningGames = await waitForElm('#rbx-running-games');
 
   runningGames.parentNode.insertBefore(div, runningGames);
   runningGames.parentNode.insertBefore(linebreak, runningGames);
