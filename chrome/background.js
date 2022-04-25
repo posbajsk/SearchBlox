@@ -3,6 +3,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, { url }) => {
 
     const target = { tabId };
 
+    // Checks if the panel is already injected into the DOM, and if not execute our scripts. 
     chrome.scripting.executeScript({ target, func: () => Boolean(document.getElementById('sbx-panel')) }, async ([{ result }]) => {
         if (result) return;
 

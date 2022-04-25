@@ -47,7 +47,6 @@ let searching = false;
 let canceled = false;
 
 async function find(imageUrl, place, cursor = '', count = 0) {
-
     status.innerText = 'Searching...';
     color(COLORS.BLUE)
     search.src = getURL('images/cancel.png');
@@ -55,13 +54,12 @@ async function find(imageUrl, place, cursor = '', count = 0) {
     input.disabled = true;
 
     const { nextPageCursor, data } = await get(`games.roblox.com/v1/games/${place}/servers/Public?limit=100&cursor=${cursor}`);
-
     cursor = nextPageCursor;
 
+    const [{ maxPlayers }] = data;
+    // TODO: Account for VIP servers
     const playing = parseInt(document.querySelectorAll('.text-lead')[document.documentElement.dataset.btrLoaded ? 0 : 3].innerText.replace(/,/g, ''), 10);
-
     const servers = data.map(s => ({ id: s.id, tokens: s.playerTokens }));
-    const maxPlayers = data[0].maxPlayers;
 
     let matches = 0;
 
@@ -76,7 +74,6 @@ async function find(imageUrl, place, cursor = '', count = 0) {
     }
 
     for (const server of servers) {
-
         if (canceled) return stop();
 
         const { data } = await post('thumbnails.roblox.com/v1/batch', JSON.stringify(server.tokens.map(t => ({ token: t, type: 'AvatarHeadshot', size: '150x150' }))));
@@ -112,8 +109,8 @@ async function find(imageUrl, place, cursor = '', count = 0) {
 
         first.parentNode.insertBefore(item, first);
 
-        const join = document.querySelectorAll(`[data-id="${server.id}"]`);
-        join[0].onclick = () => chrome.runtime.sendMessage({ message: { place, id: server.id } });
+        const [join] = document.querySelectorAll(`[data-id="${server.id}"]`);
+        join.onclick = () => chrome.runtime.sendMessage({ message: { place, id: server.id } });
     }
 
     if (!cursor) return stop();
@@ -136,7 +133,7 @@ search.addEventListener('click', async event => {
         return status.innerText = 'User not found!';
     }
 
-    const place = location.href.match(/games\/(\d+)\//)[1];
+    const [, place] = location.href.match(/games\/(\d+)\//);
 
     const { data: [{ imageUrl }] } = await get(`thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${user.Id}&size=150x150&format=Png&isCircular=false`);
 
