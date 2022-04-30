@@ -1,8 +1,7 @@
 {
   "name": "SearchBlox",
-  "action": {},
   "manifest_version": 3,
-  "version": "0.5.1",
+  "version": "0.5.2",
   "description": "Search Roblox servers for a desired player",
   "icons": {
     "16": "images/16x16.png",
