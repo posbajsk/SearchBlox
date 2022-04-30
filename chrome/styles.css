@@ -65,7 +65,7 @@
 }
 
 .highlighted {
-    border: solid #00b06f;
+    border: solid #00b06f !important;
 }
 
 #sbx-input::-webkit-input-placeholder {
