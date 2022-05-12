@@ -14,11 +14,7 @@ const USER = {
   ERROR: getURL('images/user-error.png'),
 };
 
-async function sleep(time) {
-  return new Promise((res) => {
-    setTimeout(res, time * 1000);
-  });
-}
+const sleep = time => new Promise(res => setTimeout(res, time * 1000));
 
 const get = (async (url) => {
   try {
