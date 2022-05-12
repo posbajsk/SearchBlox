@@ -1,5 +1,3 @@
-/* eslint-disable no-loop-func */
-/* eslint-disable no-return-await */
 const COLORS = {
   GREEN: '#00b06f',
   BLUE: '#0077ff',
@@ -14,15 +12,11 @@ const USER = {
   ERROR: getURL('images/user-error.png'),
 };
 
-async function sleep(time) {
-  return new Promise((res) => {
-    setTimeout(res, time * 1000);
-  });
-}
+const sleep = time => new Promise(res => setTimeout(res, time * 1000));
 
-const get = (async (url) => {
+const get = async (url) => {
   try {
-    const request = await fetch(`https://${url}`)
+    const request = await fetch(`https://${url}`);
     if (!request.ok) throw new Error('Request failed');
 
     return await request.json();
@@ -30,9 +24,9 @@ const get = (async (url) => {
     await sleep(0.2);
     return await get(url);
   }
-});
+};
 
-const post = (async (url, body) => {
+const post = async (url, body) => {
   try {
     const request = await fetch(`https://${url}`, {
       method: 'POST',
@@ -49,7 +43,7 @@ const post = (async (url, body) => {
     await sleep(0.2);
     return await post(url, body);
   }
-});
+};
 
 const search = document.getElementById('sbx-search');
 const input = document.getElementById('sbx-input');
@@ -157,9 +151,7 @@ async function findTarget(imageUrl, place) {
   if (targetServerId) {
     icon.src = getURL('images/user-success.png');
     color(COLORS.GREEN);
-    setTimeout(() => {
-      color(COLORS.BLUE);
-    }, 1000);
+    setTimeout(() => color(COLORS.BLUE), 1000);
 
     const first = document.querySelectorAll('.rbx-game-server-item')[0];
     const item = document.createElement('li');
