@@ -18,7 +18,7 @@ const sleep = time => new Promise(res => setTimeout(res, time * 1000));
 
 const get = (async (url) => {
   try {
-    const request = await fetch(`https://${url}`)
+    const request = await fetch(`https://${url}`);
     if (!request.ok) throw new Error('Request failed');
 
     return await request.json();
