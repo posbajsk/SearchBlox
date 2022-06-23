@@ -78,8 +78,18 @@ let maxPlayers = 0;
 
 const allThumbnails = new Map();
 
-async function fetchServers(place = '', cursor = '') {
+async function fetchServers(place = '', cursor = '', attempts = 0) {
   const { nextPageCursor, data } = await get(`games.roblox.com/v1/games/${place}/servers/Public?limit=100&cursor=${cursor}`);
+
+  if (attempts >= 10) {
+    foundAllServers = true;
+    return;
+  }
+
+  if (!data || data.length === 0) {
+    await sleep(1);
+    return fetchServers(place, cursor, attempts + 1);
+  }
 
   data.forEach((server) => {
     server.playerTokens.forEach((playerToken) => {
@@ -100,7 +110,7 @@ async function fetchServers(place = '', cursor = '') {
     return;
   }
 
-  fetchServers(place, nextPageCursor);
+  return fetchServers(place, nextPageCursor);
 }
 
 async function findTarget(imageUrl, place) {
