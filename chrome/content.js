@@ -149,7 +149,7 @@ async function findTarget(imageUrl, place) {
 
         targetsChecked += 1;
 
-        if (!thumbnails.includes(thumbnailData.url)) {
+        if (!thumbnails.includes(thumbnailData.imageUrl)) {
           thumbnails.push(thumbnailData.imageUrl);
         }
 
