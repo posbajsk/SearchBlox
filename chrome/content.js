@@ -73,13 +73,25 @@ let searchingTarget = true;
 let allPlayers = [];
 let playersCount = 0;
 let targetsChecked = 0;
-let targetServerId = '';
 let maxPlayers = 0;
+
+let targetServersId = [];
+let highlighted = [];
 
 const allThumbnails = new Map();
 
-async function fetchServers(place = '', cursor = '') {
+async function fetchServers(place = '', cursor = '', attempts = 0) {
   const { nextPageCursor, data } = await get(`games.roblox.com/v1/games/${place}/servers/Public?limit=100&cursor=${cursor}`);
+
+  if (attempts >= 30) {
+    foundAllServers = true;
+    return;
+  }
+
+  if (!data || data.length === 0) {
+    await sleep(1);
+    return fetchServers(place, cursor, attempts + 1);
+  }
 
   data.forEach((server) => {
     server.playerTokens.forEach((playerToken) => {
@@ -95,12 +107,12 @@ async function fetchServers(place = '', cursor = '') {
     maxPlayers = server.maxPlayers;
   });
 
-  if (!nextPageCursor || canceled || targetServerId) {
+  if (!nextPageCursor || canceled) {
     foundAllServers = true;
     return;
   }
 
-  fetchServers(place, nextPageCursor);
+  return fetchServers(place, nextPageCursor);
 }
 
 async function findTarget(imageUrl, place) {
@@ -129,26 +141,89 @@ async function findTarget(imageUrl, place) {
       if (canceled) return;
 
       thumbnailsData.forEach((thumbnailData) => {
-        if (!allThumbnails.has(thumbnailData.requestId)) {
-          allThumbnails.set(thumbnailData.requestId, []);
+        const thumbnails = allThumbnails.get(thumbnailData.requestId) || [];
+
+        if (thumbnails.length == 0) {
+          allThumbnails.set(thumbnailData.requestId, thumbnails);
         }
 
         targetsChecked += 1;
 
-        allThumbnails.get(thumbnailData.requestId).push(thumbnailData.imageUrl);
+        if (!thumbnails.includes(thumbnailData.imageUrl)) {
+          thumbnails.push(thumbnailData.imageUrl);
+        }
+
         bar.style.width = `${Math.round((targetsChecked / playersCount) * 100)}%`;
 
         const foundTarget = thumbnailData.imageUrl === imageUrl ? thumbnailData.requestId : null;
 
         if (foundTarget) {
-          targetServerId = foundTarget;
+          renderServers();
+
+          targetServersId.push(foundTarget);
           searchingTarget = false;
         }
       });
     });
   }
 
-  if (targetServerId) {
+  if (targetServersId.length) {
+    targetServersId.forEach((targetServerId) => {
+      icon.src = getURL('images/user-success.png');
+      color(COLORS.GREEN);
+      setTimeout(() => color(COLORS.BLUE), 1000);
+  
+      const first = document.querySelectorAll('.rbx-game-server-item')[0] || document.querySelectorAll('#rbx-running-games > div.section-content-off.empty-game-instances-container > p')[0];
+      
+      if (first.className == 'no-servers-message') {
+        first.parentNode.style['display'] = 'flex';
+        first.parentNode.style['flex-direction'] = 'column';
+      }
+
+      const item = document.createElement('li');
+  
+      const thumbnails = allThumbnails.get(targetServerId);
+  
+      item.className = 'stack-row rbx-game-server-item highlighted';
+      item.innerHTML = `
+        <div class="section-left rbx-game-server-details'">
+        <div class="text-info rbx-game-status rbx-game-server-status'">${thumbnails.length} of ${maxPlayers} people max</div>
+        <span>
+        <button data-id="${targetServerId}" type="button" class="btn-full-width btn-control-xs rbx-game-server-join btn-primary-md btn-min-width">Join</button>
+        </span>
+        </div>
+        <div class="section-right rbx-game-server-players">
+        ${thumbnails.map(url => `<span class="avatar avatar-headshot-sm player-avatar"><span class="thumbnail-2d-container avatar-card-image"><img src="${url}"></span></span>`).join('')}
+        </div>`;
+  
+      first.parentNode.insertBefore(item, first);
+      highlighted.push(item);
+  
+      const [join] = document.querySelectorAll(`[data-id="${targetServerId}"]`);
+      join.onclick = () => chrome.runtime.sendMessage({ message: { place, id: targetServerId } });
+      status.innerText = 'Found target';
+    });
+  } else {
+    color(canceled ? COLORS.BLUE : COLORS.RED);
+    status.innerText = canceled ? 'Canceled search' : 'Target not found!';
+  }
+
+  searching = false;
+  canceled = false;
+
+  bar.style.width = '100%';
+  input.disabled = false;
+  search.src = getURL('images/search.png');
+}
+
+function renderServers() {
+  highlighted.forEach((item) => {
+    item.remove();    
+  });
+
+  highlighted = [];
+
+  targetServersId.forEach((targetServerId) => {
     icon.src = getURL('images/user-success.png');
     color(COLORS.GREEN);
     setTimeout(() => color(COLORS.BLUE), 1000);
@@ -171,32 +246,24 @@ async function findTarget(imageUrl, place) {
       </div>`;
 
     first.parentNode.insertBefore(item, first);
+    highlighted.push(item);
 
     const [join] = document.querySelectorAll(`[data-id="${targetServerId}"]`);
     join.onclick = () => chrome.runtime.sendMessage({ message: { place, id: targetServerId } });
     status.innerText = 'Found target';
-  } else {
-    color(canceled ? COLORS.BLUE : COLORS.RED);
-    status.innerText = canceled ? 'Canceled search' : 'Target not found!';
-  }
-
-  searching = false;
-  canceled = false;
-
-  bar.style.width = '100%';
-  input.disabled = false;
-  search.src = getURL('images/search.png');
-}
+  });
+};
 
 async function find(imageUrl, place) {
   allPlayers = [];
+  targetServersId = [];
+
   allThumbnails.clear();
   foundAllServers = false;
   searchingTarget = true;
   allPlayers = [];
   playersCount = 0;
   targetsChecked = 0;
-  targetServerId = '';
   maxPlayers = 0;
 
   status.innerText = 'Searching...';
@@ -231,8 +298,10 @@ search.addEventListener('click', async event => {
 
   const [, place] = window.location.href.match(/games\/(\d+)\//);
   const { data: [{ imageUrl }] } = await get(`thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${user.Id}&size=150x150&format=Png&isCircular=false`);
-  const highlighted = document.querySelectorAll('[data-id]');
 
-  highlighted.forEach(child => child.parentNode.parentNode.parentNode.remove());
+  highlighted.forEach((item) => {
+    item.remove();
+  });
+
   find(imageUrl, place);
 });
